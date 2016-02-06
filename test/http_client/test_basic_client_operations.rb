@@ -2,7 +2,7 @@ require 'helper'
 
 class TestBasicClientOperations < Test::Unit::TestCase
   def test_simple_get
-    result = @client.get("/echo", :content => "hello")
+    result = @client.get("/echo?content=hello")
 
     assert_equal("hello", result)
   end
@@ -26,7 +26,7 @@ class TestBasicClientOperations < Test::Unit::TestCase
   end
 
   def test_can_get_full_url
-    result = @client.get("http://localhost:8080/echo", :content => "hello")
+    result = @client.get("http://localhost:8080/echo?content=hello")
 
     assert_equal("hello", result)
   end

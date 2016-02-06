@@ -2,7 +2,7 @@ require 'helper'
 
 class RedirectTest < Test::Unit::TestCase
   def test_get_redirect
-    result = @client.get("/redirect", :content => "foo")
+    result = @client.get("/redirect?content=foo")
 
     assert_equal("foo", result)
   end

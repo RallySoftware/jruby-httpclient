@@ -113,6 +113,8 @@ module HTTP
       def echo(request, response, canned_response = nil)
         response.status = 200
         response['Content-Type'] = 'text/plain'
+        response['x-echoed-query'] = request.query.to_s
+        response['x-echoed-body'] = request.body
         response.body = canned_response || request.query['content']
       end
     end

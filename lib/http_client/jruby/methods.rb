@@ -7,12 +7,10 @@ module HTTP
     def initialize(uri, params = {})
       @scheme, @host, @port, @path, query = parse_uri(uri)
 
-      query_string_params = CGI.parse(query || "").collect do |key, value| 
+      @query_string_params = CGI.parse(query || "").collect do |key, value|
         value.collect { |v| BasicNameValuePair.new(key.to_s, v.to_s) }
       end
-      post_params = params.collect { |key, value| BasicNameValuePair.new(key.to_s, value.to_s) }
-
-      @query_params = (query_string_params + post_params).flatten
+      @post_params = params.collect { |key, value| BasicNameValuePair.new(key.to_s, value.to_s) }
 
       @encoding = "UTF-8"
       @headers = {}
@@ -45,6 +43,7 @@ module HTTP
     end
 
     private
+
     def create_uri(query_string = nil)
       URIUtils.create_uri(@scheme, @host, @port, @path, query_string, nil)
     end
@@ -55,33 +54,42 @@ module HTTP
     rescue URI::InvalidURIError
       [nil, nil, nil, uri, nil]
     end
+
+    def post_params
+      (@query_string_params + @post_params).flatten
+    end
+
+    def get_params
+      @query_string_params.flatten
+    end
   end
 
   class Post < Request
     def create_native_request
-      post = HttpPost.new(create_uri)
-      post.entity = UrlEncodedFormEntity.new(@query_params, encoding)
+      query_string = URLEncodedUtils.format(get_params(), encoding)
+      post = HttpPost.new(create_uri(query_string))
+      post.entity = UrlEncodedFormEntity.new(post_params(), encoding)
       post
     end
   end
 
   class Get < Request
     def create_native_request
-      query_string = URLEncodedUtils.format(@query_params, encoding)
+      query_string = URLEncodedUtils.format(get_params(), encoding)
       HttpGet.new(create_uri(query_string))
     end
   end
 
   class Head < Request
     def create_native_request
-      query_string = URLEncodedUtils.format(@query_params, encoding)
+      query_string = URLEncodedUtils.format(post_params(), encoding)
       HttpHead.new(create_uri(query_string))
     end
   end
 
   class Options < Request
     def create_native_request
-      query_string = URLEncodedUtils.format(@query_params, encoding)
+      query_string = URLEncodedUtils.format(post_params(), encoding)
       HttpOptions.new(create_uri(query_string))
     end
   end

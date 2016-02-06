@@ -43,7 +43,7 @@ class ClientHeadersTest < Test::Unit::TestCase
   end
 
   def test_should_be_able_to_add_content_type
-    get = HTTP::Get.new("/echo_header", :header => 'content-type')
+    get = HTTP::Get.new("/echo_header?header=content-type")
     get.content_type = 'text/xml'
 
     response = @client.execute(get)
